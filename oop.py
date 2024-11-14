@@ -31,15 +31,15 @@ class todo:
         self.task = []
 
     def list_task(self):
-        return self.task()
+        return self.task() #
 
     def new_task(self, new_task):
-        self.task.append(new_task)
+        self.task.append(new_task) #
 
     def remove_task(self, old_task):
         for task in self.task:
             if old_task == task:
-                self.task.remove(task)
+                self.task.remove(task) #
 
     def change_date(self, name, new_date):
         for task in self.task:
@@ -61,7 +61,7 @@ class todo:
             print("no task")
         else:
             for task in self.task:
-                print(task)
+                print(task) #
 
     def view_note(self, name):
         for task in self.task:
@@ -89,21 +89,29 @@ class pointer:
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.stdscr.clear()
+
         curses.curs_set(0)
+        self.stdscr.nodelay(1)
+        self.stdscr.timeout(1000)
+
+        self.todo = todo()
 
     def display(self):
         self.stdscr.clear()
-        self.stdscr.addstr(0 ,0 ,"1. new task")
-        self.stdscr.addstr(1 ,0 ,"2. view task")
-        self.stdscr.addstr(2 ,0 ,"3. remove task")
-        self.stdscr.addstr(3 ,0 ,"4. edit date")
-        self.stdscr.addstr(4 ,0 ,"5. edit note")
-        self.stdscr.addstr(5 ,0 ,"6.edit priority")
 
+        self.stdscr.addstr( 0, 0, "pess q to quit!")
+        self.stdscr.timeout(500)
+        self.stdscr.clear()
+
+        self.stdscr.addstr( 1, 0 , "1. new task")
+        self.stdscr.addstr( 2, 0 , "2. view task")
+        self.stdscr.addstr( 3, 0 , "3. remove task")
+        self.stdscr.addstr( 4, 0 , "4. edit date")
+        self.stdscr.addstr( 5, 0 , "5. edit note")
+        self.stdscr.addstr( 6, 0 , "6.edit priority")
 
         for i, task in enumerate(todo.task):
-            self.stdscr.addstr(i + 1, 0, str(task))
-        
+            self.stdscr.addstr( i + 1, 0, str(task))
         self.stdscr.refresh()
 
     def handle_input(self):
@@ -111,19 +119,13 @@ class pointer:
 
         if key == ord('q'): 
             return False
-        
-        elif key == ord('m'): 
-            task.mark_completed()
 
-        elif key == ord('r'):  
-            todo.remove_task()
-
-        elif key == ord('1'):
+        elif key == ord('1'): #add new task
             self.stdscr.clear()
             self.stdscr.addstr( 1, 0, "name task: ")
             curses.echo()
 
-            name = self.stdscr.getstr( 02, 0, 60).decode("utf-8").strip()
+            name = self.stdscr.getstr( 0, 0, 60).decode("utf-8").strip()
             if name :
                 todo.new_task.append(name)
             
@@ -136,15 +138,26 @@ class pointer:
 
         elif key == ord('3'):
             if len(todo.list_task()) > 0:
-                
                 curses.echo()
-                del_task = self.stdscr.getstr()
+                del_task = self.stdscr.getstr( 0, 0 , "name task want to delete: ") 
+                todo.remove_task(del_task)
+                self.stdscr.refresh()
+            else:
+                self.stdscr.addstr( 0, 0 , "no task to delete!!")
+                self.stdscr.timeout(1000)
+                self.stdscr.refresh()
+        else:
+            self.stdscr.refresh()
 
-    
+    def run(self):
+        while True:
+            self.display()
+            if not self.handle_input:
+                break
 
+def main(stdscr):
+    app = pointer(stdscr)
+    app.run()
 
-
-    
-
-        
-            
+if __name__ == "__main__" :
+    curses.wrapper(main)
