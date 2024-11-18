@@ -1,7 +1,7 @@
 import curses
 
 class task:
-    def __init__(self, name, date_time, note=None, priority=None ): 
+    def __init__(self, name, date_time=False, note=False, priority=False ): 
         self.name = name 
         self.completed = False
         self.day = date_time
@@ -9,8 +9,8 @@ class task:
         self.note = note
 
     def __str__(self): 
-        return f"[{"[x]" if self.completed else [ ]}] {self.name} (priority = {self.place}, day = {self.day}, note = {self.note})"
-    
+        return f"[{"x" if self.completed else " "}] {self.name} (date : {self.day}, note : {self.note}, priority : {self.place})"
+
     def mark_completed(self): 
         self.completed = True
 
@@ -44,11 +44,11 @@ class todo:
 
     def display(self):
         self.stdscr.clear()
-        self.stdscr.addstr(0, 0, "Use arrow keys to navigate, 'a' to add, 'm' to mark, 'r' to remove, 'q' to quit)", curses.A_BOLD)
+        self.stdscr.addstr(0 ,0 , "q to quit, arrow to change note",curses.A_BOLD)
 
         for i, task in enumerate(self.task):
             if i == self.index:
-                self.stdscr.addstr( i + 1, 0, str(task), )
+                self.stdscr.addstr( i + 1, 0, str(task))
             else:
                 self.stdscr.addstr( i + 1, 0, str(task))
 
@@ -58,7 +58,7 @@ class todo:
         self.stdscr.addstr(len(self.task) + 5, 0, "4. Edit Task Note")
         self.stdscr.addstr(len(self.task) + 6, 0, "5. Edit Task Date")
         self.stdscr.addstr(len(self.task) + 7, 0, "6. List Completed Tasks")
-        self.stdscr.addstr(len(self.task) + 9, 0, "2. Mark as Completed")
+        self.stdscr.addstr(len(self.task) + 9, 0, "'m' to completed")
 
         self.stdscr.refresh()
 
@@ -70,7 +70,7 @@ class todo:
         elif key == curses.KEY_DOWN :
             self.index = min( self.index, len(self.task) - 1)
         elif key == curses.KEY_UP :
-            self.index = min( self.index, len(self.task) - 1)
+            self.index = max( self.index, len(self.task) - 1)
         elif key == ord('1'):
             self.new_task()
         elif key == ord('2'):
@@ -87,22 +87,20 @@ class todo:
             self.list_completed()
         return True
 
-
-
-
     def new_task(self,):
         self.stdscr.clear()
         self.stdscr.addstr("name: ")
         curses.echo()
- 
         new_task = self.stdscr.getstr(1, 0, 60).decode("utf-8").strip()
-
+        
         if new_task :
             new_task = task(new_task)
             self.task.append(new_task)
-
-        self.stdcsr.refresh()
-        self.stdscr.getch()
+            
+            self.stdscr.clear()
+            self.stdscr.addstr("add successfully")
+            self.stdscr.refresh()
+            self.stdscr.getch()
 
     def remove_task(self):
         if self.task :
@@ -110,8 +108,6 @@ class todo:
 
             if self.index() >= len(self.task) :
                 self.index = len(self.task) - 1
-
-        self.stdcsr.refresh()
 
     def change_date(self):
         if self.task :
